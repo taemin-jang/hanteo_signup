@@ -2,15 +2,20 @@ import '../styles/button.css';
 
 interface IProps {
   name: string;
+  type?: 'button' | 'submit' | 'reset';
   color?: 'skyblue' | 'cornflowerblue' | 'lightpink';
   handler?: () => void;
 }
 
 const Button = (props: IProps) => {
-  const { name, color = 'skyblue', handler } = props;
+  const { name, type = 'button', color = 'skyblue', handler } = props;
   return (
     <>
-      <button style={{ backgroundColor: `${color}` }} onClick={handler}>
+      <button
+        type={type}
+        style={{ backgroundColor: `${color}` }}
+        onClick={handler}
+      >
         {name}
       </button>
     </>

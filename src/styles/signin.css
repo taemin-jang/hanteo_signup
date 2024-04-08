@@ -5,12 +5,12 @@
 .id_pw_wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 30px;
 }
 
 .signup_signin_wrap {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 50px;
   display: flex;
   gap: 10px;
 }

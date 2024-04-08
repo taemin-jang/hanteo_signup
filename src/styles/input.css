@@ -1,3 +1,7 @@
+div {
+  position: relative;
+}
+
 label {
   display: inline-block;
   margin-bottom: 4px;
