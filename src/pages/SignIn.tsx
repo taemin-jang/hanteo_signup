@@ -3,6 +3,25 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import '../styles/signin.css';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
+import { Cookies } from 'react-cookie';
+import ValidateMessage from '../components/ValidateMessage';
+
+interface IUser {
+  id: string;
+  password: string;
+  name: string;
+  image: string;
+  create_at: number;
+  update_at: number;
+}
+
+const getUser = (id: string) => {
+  const cookies = new Cookies();
+  const userInfo: IUser = cookies.get(id);
+  if (!userInfo) throw new Error('로그인이 올바르지 않습니다.');
+  return userInfo;
+};
 
 interface IFormValues {
   userID: string;
@@ -15,14 +34,26 @@ const SignIn = () => {
     register,
     formState: { errors },
     clearErrors,
-    // setError,
     handleSubmit,
   } = useForm<IFormValues>({ mode: 'onChange' });
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const onSubmit: SubmitHandler<IFormValues> = data => {
+  const onSubmit: SubmitHandler<IFormValues> = async data => {
     const { userID, userPW } = data;
-    console.log(userID, userPW);
+    try {
+      const query = await queryClient.fetchQuery({
+        queryKey: ['user', userID],
+        queryFn: ({ queryKey }) => getUser(queryKey[1]),
+      });
+
+      if (userPW !== query.password)
+        throw new Error('비밀번호가 올바르지 않습니다.');
+
+      navigate('/mypage');
+    } catch (err) {
+      alert('아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.');
+    }
   };
 
   return (
@@ -54,16 +85,19 @@ const SignIn = () => {
             onFocus={() => clearErrors('login')}
             {...register('userPW', {
               required: '비밀번호를 입력해주세요',
-              // pattern: {
-              //   value:
-              //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*#?&])(?!.*\d{3})[A-Za-z\d$@$!%*#?&]{8,13}$/,
-              //   message:
-              //     '숫자, 영문 대소문자, 특수 문자를 포함 및 연속된 숫자 3자리이상 금지',
-              // },
+              pattern: {
+                value:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*#?&])(?!.*\d{3})[A-Za-z\d$@$!%*#?&]{8,13}$/,
+                message:
+                  '숫자, 영문 대소문자, 특수 문자를 포함 및 연속된 숫자 3자리이상 금지',
+              },
             })}
             name="userPW"
           />
         </div>
+        {errors.login && (
+          <ValidateMessage>{errors.login.message}</ValidateMessage>
+        )}
         <div className="signup_signin_wrap">
           <Button name="회원가입" onClick={() => navigate('/signup')} />
           <Button type="submit" name="로그인" color="cornflowerblue" />
