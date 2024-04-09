@@ -52,7 +52,7 @@ const SignUp = () => {
       ) : (
         <div className="default_image">이미지를 첨부해주세요.</div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form className="signup_form" onSubmit={handleSubmit(onSubmit)}>
         <ImageUploadInput
           id="imageUpload"
           type="file"
@@ -64,12 +64,11 @@ const SignUp = () => {
           {...register('imageUrl')}
           name="imageUrl"
         />
-
         <Input
           label="Id"
           id="id"
           type="text"
-          placeholder="ID를 입력해주세요."
+          placeholder="ID를 Email 형식으로 입력해주세요."
           errorMsg={errors.userID}
           onFocus={() => clearErrors('login')}
           {...register('userID', {
@@ -125,6 +124,10 @@ const SignUp = () => {
           onFocus={() => clearErrors('login')}
           {...register('userName', {
             required: '이름을 입력해주세요',
+            pattern: {
+              value: /^.{0,5}$/,
+              message: '이름의 최대 길이는 5글자입니다.',
+            },
           })}
           name="userName"
         />

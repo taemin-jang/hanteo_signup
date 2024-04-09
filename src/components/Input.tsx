@@ -25,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, IProps>((props, ref) => {
         name={name}
         placeholder={placeholder}
         {...prop}
+        autoComplete={`${type !== 'password'}`}
       />
       {errorMsg && <ValidateMessage>{errorMsg.message}</ValidateMessage>}
     </div>
