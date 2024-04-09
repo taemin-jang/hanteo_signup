@@ -3,7 +3,8 @@ import Input, { ImageUploadInput } from '../components/Input';
 import Button from '../components/Button';
 import { useEffect, useState } from 'react';
 import '../styles/signup.css';
-// import { useState } from 'react';
+import { Cookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -26,10 +27,23 @@ const SignUp = () => {
 
   const [preview, setPreview] = useState('');
   const imageUrl = watch('imageUrl');
+  const cookies = new Cookies();
+  const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<IFormValues> = data => {
-    const { imageUrl } = data;
-    console.log(imageUrl);
+  const onSubmit: SubmitHandler<IFormValues> = async data => {
+    const { imageUrl, userID, userPW, userName } = data;
+    const userInfo = {
+      id: userID,
+      password: userPW,
+      name: userName,
+      image: imageUrl[0].name,
+      create_at: Date.now(),
+      update_at: Date.now(),
+    };
+
+    cookies.set(userID, userInfo);
+
+    navigate('/signin');
   };
 
   useEffect(() => {
