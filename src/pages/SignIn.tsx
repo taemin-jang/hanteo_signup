@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import '../styles/signin.css';
@@ -17,6 +18,7 @@ const SignIn = () => {
     // setError,
     handleSubmit,
   } = useForm<IFormValues>({ mode: 'onChange' });
+  const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<IFormValues> = data => {
     const { userID, userPW } = data;
@@ -37,10 +39,11 @@ const SignIn = () => {
             {...register('userID', {
               required: 'ID를 입력해주세요.',
               pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: '이메일 형식으로 작성해주세요.',
               },
             })}
+            name="userID"
           />
           <Input
             label="Password"
@@ -58,10 +61,11 @@ const SignIn = () => {
               //     '숫자, 영문 대소문자, 특수 문자를 포함 및 연속된 숫자 3자리이상 금지',
               // },
             })}
+            name="userPW"
           />
         </div>
         <div className="signup_signin_wrap">
-          <Button name="회원가입" />
+          <Button name="회원가입" onClick={() => navigate('/signup')} />
           <Button type="submit" name="로그인" color="cornflowerblue" />
         </div>
       </div>

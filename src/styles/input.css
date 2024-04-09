@@ -23,3 +23,22 @@ input:focus {
 input::placeholder {
   color: gray;
 }
+
+input[type='file'] {
+  display: none;
+}
+
+.image_upload {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  font-size: 20px;
+  background-color: lightgray;
+  cursor: pointer;
+  box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
+}
