@@ -4,11 +4,12 @@ interface IProps {
   name: string;
   type?: 'button' | 'submit' | 'reset';
   color?: 'skyblue' | 'cornflowerblue' | 'lightpink';
+  children?: React.ReactNode;
   onClick?: () => void;
 }
 
 const Button = (props: IProps) => {
-  const { name, type = 'button', color = 'skyblue', onClick } = props;
+  const { name, type = 'button', color = 'skyblue', children, onClick } = props;
   return (
     <>
       <button
@@ -16,7 +17,7 @@ const Button = (props: IProps) => {
         style={{ backgroundColor: `${color}` }}
         onClick={onClick}
       >
-        {name}
+        {children ? children : name}
       </button>
     </>
   );

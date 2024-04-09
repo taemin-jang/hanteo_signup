@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { useEffect, useState } from 'react';
 import '../styles/signup.css';
 import { Cookies } from 'react-cookie';
+import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 
 interface IFormValues {
@@ -20,7 +21,6 @@ const SignUp = () => {
     register,
     formState: { errors },
     clearErrors,
-    // setError,
     watch,
     handleSubmit,
   } = useForm<IFormValues>({ mode: 'onChange' });
@@ -28,22 +28,25 @@ const SignUp = () => {
   const [preview, setPreview] = useState('');
   const imageUrl = watch('imageUrl');
   const cookies = new Cookies();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<IFormValues> = async data => {
-    const { imageUrl, userID, userPW, userName } = data;
-    const userInfo = {
-      id: userID,
-      password: userPW,
-      name: userName,
-      image: imageUrl[0].name,
-      create_at: Date.now(),
-      update_at: Date.now(),
-    };
-
-    cookies.set(userID, userInfo);
-
-    navigate('/signin');
+    setLoading(true);
+    setTimeout(() => {
+      const { imageUrl, userID, userPW, userName } = data;
+      const userInfo = {
+        id: userID,
+        password: userPW,
+        name: userName,
+        image: imageUrl[0].name,
+        create_at: Date.now(),
+        update_at: Date.now(),
+      };
+      cookies.set(userID, userInfo);
+      setLoading(false);
+      navigate('/signin');
+    }, 1000);
   };
 
   useEffect(() => {
@@ -145,7 +148,9 @@ const SignUp = () => {
           })}
           name="userName"
         />
-        <Button type="submit" name="회원가입" color="cornflowerblue" />
+        <Button type="submit" name="회원가입" color="cornflowerblue">
+          {loading && <Spinner />}
+        </Button>
       </form>
     </>
   );
