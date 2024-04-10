@@ -1,0 +1,11 @@
+.mypage_form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mypage_button_wrap {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
