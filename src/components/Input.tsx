@@ -43,9 +43,10 @@ export const ImageUploadInput = React.forwardRef<
   HTMLInputElement,
   ImageUploadProps
 >((props, ref) => {
-  const { id, name, placeholder, type, label, ...prop } = props;
+  const { id, name, placeholder, errorMsg, type, label, ...prop } = props;
   return (
     <div>
+      {errorMsg && <ValidateMessage>{errorMsg.message}</ValidateMessage>}
       <label className="image_upload" htmlFor={id}>
         {label}
       </label>

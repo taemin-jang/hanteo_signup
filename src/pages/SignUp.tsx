@@ -44,6 +44,14 @@ const SignUp = () => {
     setTimeout(() => {
       const { imageUrl, userID, userPW, userName } = data;
       const prevId: string = getCookies('user')?.id;
+      const userInfo = {
+        id: userID,
+        password: userPW,
+        name: userName,
+        image: imageUrl[0].name,
+        create_at: Date.now(),
+        update_at: Date.now(),
+      };
 
       if (prevId !== userID) {
         removeCookies('reqCount');
@@ -61,14 +69,6 @@ const SignUp = () => {
       }
 
       setCookies('reqCount', reqCount + 1);
-      const userInfo = {
-        id: userID,
-        password: userPW,
-        name: userName,
-        image: imageUrl[0].name,
-        create_at: Date.now(),
-        update_at: Date.now(),
-      };
       setCookies('user', userInfo);
       setLoading(false);
       navigate('/signin');
@@ -98,9 +98,11 @@ const SignUp = () => {
           label="이미지 업로드"
           placeholder="이미지를 첨부해주세요."
           accept="image/*"
-          required
           multiple
-          {...register('imageUrl')}
+          errorMsg={errors.imageUrl}
+          {...register('imageUrl', {
+            required: '이미지를 첨부해주세요.',
+          })}
           name="imageUrl"
         />
         <Input
