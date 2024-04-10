@@ -3,13 +3,12 @@ import Input, { ImageUploadInput } from '../components/Input';
 import Button from '../components/Button';
 import { useEffect, useState } from 'react';
 import '../styles/mypage.css';
-import { Cookies } from 'react-cookie';
 import Spinner from '../components/Spinner';
-// import { useNavigate } from 'react-router-dom';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import convertBase64 from '../utils/convertBase64';
 import getDate from '../utils/getDate';
 import { useNavigate } from 'react-router-dom';
+import { getCookies, setCookies } from '../utils/cookies';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -30,8 +29,7 @@ interface IUser {
 }
 
 const getUser = () => {
-  const cookies = new Cookies();
-  const userInfo: IUser = cookies.get('user');
+  const userInfo: IUser = getCookies('user');
   return userInfo;
 };
 
@@ -53,7 +51,6 @@ const Mypage = () => {
   const saveImageUrl: string = localStorage.getItem(data.image) || '';
   const [preview, setPreview] = useState('');
   const imageUrl = watch('imageUrl');
-  const cookies = new Cookies();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -68,7 +65,7 @@ const Mypage = () => {
         image: imageUrl[0]?.name ?? data.image,
         update_at: Date.now(),
       };
-      cookies.set('user', userInfo);
+      setCookies('user', userInfo);
       queryClient.setQueryData(['user'], userInfo);
       setLoading(false);
     }, 1000);

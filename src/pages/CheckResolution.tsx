@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Cookies } from 'react-cookie';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Outlet } from 'react-router-dom';
+import { getCookies } from '../utils/cookies';
 
 const CheckResolution = () => {
   const [error, setError] = useState(false);
   const { showBoundary } = useErrorBoundary();
-  const cookies = new Cookies();
-  const isSignInAccess = cookies.get('signinNotAccess');
-  const isCommunicationError = cookies.get('CommunicationError');
+  const isSignInAccess = getCookies('signinNotAccess');
+  const isCommunicationError = getCookies('CommunicationError');
   useEffect(() => {
     const handleResolution = () => {
       const width = window.innerWidth;

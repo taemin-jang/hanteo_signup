@@ -3,11 +3,16 @@ import Input, { ImageUploadInput } from '../components/Input';
 import Button from '../components/Button';
 import { useEffect, useState } from 'react';
 import '../styles/signup.css';
-import { Cookies } from 'react-cookie';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 import convertBase64 from '../utils/convertBase64';
 import { useErrorBoundary } from 'react-error-boundary';
+import {
+  getCookies,
+  removeCookies,
+  setCookies,
+  setErrorCookies,
+} from '../utils/cookies';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -29,26 +34,24 @@ const SignUp = () => {
 
   const [preview, setPreview] = useState('');
   const imageUrl = watch('imageUrl');
-  const cookies = new Cookies();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { showBoundary } = useErrorBoundary();
-  const TIME = 60;
-  const prevId: string = cookies.get('user').id;
-  let reqCount: number = cookies.get('reqCount') ?? 0;
+  let reqCount: number = getCookies('reqCount') ?? 0;
 
   const onSubmit: SubmitHandler<IFormValues> = data => {
     setLoading(true);
     setTimeout(() => {
       const { imageUrl, userID, userPW, userName } = data;
+      const prevId: string = getCookies('user')?.id;
 
       if (prevId !== userID) {
-        cookies.remove('reqCount');
+        removeCookies('reqCount');
         reqCount = 0;
       }
 
       if (reqCount >= 3) {
-        cookies.set('CommunicationError', true, { maxAge: TIME });
+        setErrorCookies('CommunicationError', true);
         showBoundary({
           code: 403,
           message:
@@ -57,7 +60,7 @@ const SignUp = () => {
         return;
       }
 
-      cookies.set('reqCount', reqCount + 1);
+      setCookies('reqCount', reqCount + 1);
       const userInfo = {
         id: userID,
         password: userPW,
@@ -66,7 +69,7 @@ const SignUp = () => {
         create_at: Date.now(),
         update_at: Date.now(),
       };
-      cookies.set('user', userInfo);
+      setCookies('user', userInfo);
       setLoading(false);
       navigate('/signin');
     }, 1000);

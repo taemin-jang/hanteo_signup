@@ -4,10 +4,10 @@ import Input from '../components/Input';
 import '../styles/signin.css';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
-import { Cookies } from 'react-cookie';
 import ValidateMessage from '../components/ValidateMessage';
 import { useEffect, useState } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
+import { getCookies, setErrorCookies } from '../utils/cookies';
 
 interface IUser {
   id: string;
@@ -18,9 +18,16 @@ interface IUser {
   update_at: number;
 }
 
-const getUser = () => {
-  const cookies = new Cookies();
-  const userInfo: IUser = cookies.get('user');
+const getUser = (
+  setSignInFailCount: React.Dispatch<React.SetStateAction<number>>,
+) => {
+  const userInfo: IUser = getCookies('user');
+  if (!userInfo) {
+    setSignInFailCount(prevCount => prevCount + 1);
+    throw new Error(
+      '아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.',
+    );
+  }
   return userInfo;
 };
 
@@ -41,15 +48,13 @@ const SignIn = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showBoundary } = useErrorBoundary();
-  const cookies = new Cookies();
-  const TIME = 60;
 
   const onSubmit: SubmitHandler<IFormValues> = async data => {
     const { userID, userPW } = data;
     try {
       const query = await queryClient.fetchQuery({
         queryKey: ['user'],
-        queryFn: () => getUser(),
+        queryFn: () => getUser(setSignInFailCount),
       });
 
       if (userID !== query.id || userPW !== query.password) {
@@ -69,7 +74,7 @@ const SignIn = () => {
 
   useEffect(() => {
     if (singInFailCount >= 3) {
-      cookies.set('signinNotAccess', true, { path: '/', maxAge: TIME });
+      setErrorCookies('signinNotAccess', true);
       showBoundary({
         code: 401,
         message:
