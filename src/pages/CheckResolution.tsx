@@ -8,6 +8,7 @@ const CheckResolution = () => {
   const { showBoundary } = useErrorBoundary();
   const cookies = new Cookies();
   const isSignInAccess = cookies.get('signinNotAccess');
+  const isCommunicationError = cookies.get('CommunicationError');
   useEffect(() => {
     const handleResolution = () => {
       const width = window.innerWidth;
@@ -32,6 +33,13 @@ const CheckResolution = () => {
     });
   }
 
+  if (isCommunicationError) {
+    showBoundary({
+      code: 403,
+      message:
+        '🚨동일한 ID로 회원 가입 횟수 초과로 1분간 서비스를 이용할 수 없습니다.🚨',
+    });
+  }
   if (error) {
     showBoundary({
       code: 415,

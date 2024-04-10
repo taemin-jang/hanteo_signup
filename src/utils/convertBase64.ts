@@ -1,7 +1,6 @@
 const convertBase64 = (file: File): Promise<string> => {
   return new Promise(resolve => {
     const reader = new FileReader();
-    console.log('????><?><>?<?><?', file);
     reader.readAsDataURL(file);
 
     reader.onload = () => {

@@ -7,6 +7,7 @@ import { Cookies } from 'react-cookie';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 import convertBase64 from '../utils/convertBase64';
+import { useErrorBoundary } from 'react-error-boundary';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -31,10 +32,32 @@ const SignUp = () => {
   const cookies = new Cookies();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const onSubmit: SubmitHandler<IFormValues> = async data => {
+  const { showBoundary } = useErrorBoundary();
+  const TIME = 60;
+  const prevId: string = cookies.get('user').id;
+  let reqCount: number = cookies.get('reqCount') ?? 0;
+
+  const onSubmit: SubmitHandler<IFormValues> = data => {
     setLoading(true);
     setTimeout(() => {
       const { imageUrl, userID, userPW, userName } = data;
+
+      if (prevId !== userID) {
+        cookies.remove('reqCount');
+        reqCount = 0;
+      }
+
+      if (reqCount >= 3) {
+        cookies.set('CommunicationError', true, { maxAge: TIME });
+        showBoundary({
+          code: 403,
+          message:
+            '🚨동일한 ID로 회원 가입 횟수 초과로 1분간 서비스를 이용할 수 없습니다.🚨',
+        });
+        return;
+      }
+
+      cookies.set('reqCount', reqCount + 1);
       const userInfo = {
         id: userID,
         password: userPW,
@@ -144,7 +167,12 @@ const SignUp = () => {
           })}
           name="userName"
         />
-        <Button type="submit" name="회원가입" color="cornflowerblue">
+        <Button
+          type="submit"
+          name="회원가입"
+          color="cornflowerblue"
+          disabled={loading}
+        >
           {loading && <Spinner />}
         </Button>
       </form>
