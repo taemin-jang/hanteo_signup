@@ -16,10 +16,9 @@ interface IUser {
   update_at: number;
 }
 
-const getUser = (id: string) => {
+const getUser = () => {
   const cookies = new Cookies();
-  const userInfo: IUser = cookies.get(id);
-  if (!userInfo) throw new Error('로그인이 올바르지 않습니다.');
+  const userInfo: IUser = cookies.get('user');
   return userInfo;
 };
 
@@ -43,16 +42,20 @@ const SignIn = () => {
     const { userID, userPW } = data;
     try {
       const query = await queryClient.fetchQuery({
-        queryKey: ['user', userID],
-        queryFn: ({ queryKey }) => getUser(queryKey[1]),
+        queryKey: ['user'],
+        queryFn: () => getUser(),
       });
 
-      if (userPW !== query.password)
-        throw new Error('비밀번호가 올바르지 않습니다.');
+      if (userID !== query.id || userPW !== query.password)
+        throw new Error(
+          '아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.',
+        );
 
       navigate('/mypage');
-    } catch (err) {
-      alert('아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.');
+    } catch (error) {
+      let message = 'Unknown Error';
+      if (error instanceof Error) message = error.message;
+      alert(message);
     }
   };
 
