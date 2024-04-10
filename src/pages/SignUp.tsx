@@ -6,6 +6,7 @@ import '../styles/signup.css';
 import { Cookies } from 'react-cookie';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
+import convertBase64 from '../utils/convertBase64';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -30,7 +31,6 @@ const SignUp = () => {
   const cookies = new Cookies();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   const onSubmit: SubmitHandler<IFormValues> = async data => {
     setLoading(true);
     setTimeout(() => {
@@ -43,23 +43,20 @@ const SignUp = () => {
         create_at: Date.now(),
         update_at: Date.now(),
       };
-      cookies.set(userID, userInfo);
+      cookies.set('user', userInfo);
       setLoading(false);
       navigate('/signin');
     }, 1000);
   };
 
   useEffect(() => {
-    let url = '';
-    if (imageUrl && imageUrl.length) {
-      const file = imageUrl[0];
-      url = window.URL.createObjectURL(file);
+    const converImagetUrl = async (file: File) => {
+      const url = await convertBase64(file);
+      localStorage.setItem(file.name, url);
       setPreview(url);
-    }
-
-    return () => {
-      window.URL.revokeObjectURL(url);
     };
+    console.log('imageurl', imageUrl);
+    if (imageUrl) converImagetUrl(imageUrl[0]);
   }, [imageUrl]);
 
   return (
