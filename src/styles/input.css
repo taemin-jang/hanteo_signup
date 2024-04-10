@@ -28,6 +28,10 @@ input[type='file'] {
   display: none;
 }
 
+input:disabled {
+  background-color: lightgray;
+}
+
 .image_upload {
   width: 100%;
   box-sizing: border-box;

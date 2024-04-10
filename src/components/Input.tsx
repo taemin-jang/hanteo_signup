@@ -10,6 +10,7 @@ interface IProps {
   type: string;
   label: string;
   errorMsg?: FieldError;
+  disabled?: boolean;
   onFocus?: () => void;
 }
 
@@ -34,7 +35,7 @@ const Input = React.forwardRef<HTMLInputElement, IProps>((props, ref) => {
 
 interface ImageUploadProps extends IProps {
   accept: string;
-  required: boolean;
+  required?: boolean;
   multiple: boolean;
 }
 
