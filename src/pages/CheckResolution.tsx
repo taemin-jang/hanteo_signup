@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Cookies } from 'react-cookie';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Outlet } from 'react-router-dom';
 
 const CheckResolution = () => {
   const [error, setError] = useState(false);
   const { showBoundary } = useErrorBoundary();
+  const cookies = new Cookies();
+  const isSignInAccess = cookies.get('signinNotAccess');
   useEffect(() => {
     const handleResolution = () => {
       const width = window.innerWidth;
@@ -21,6 +24,13 @@ const CheckResolution = () => {
       window.removeEventListener('resize', handleResolution);
     };
   }, []);
+
+  if (isSignInAccess) {
+    showBoundary({
+      code: 401,
+      message: '🚨로그인 시도 횟수 초과로 1분간 서비스를 이용할 수 없습니다.🚨',
+    });
+  }
 
   if (error) {
     showBoundary({

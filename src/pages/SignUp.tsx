@@ -55,8 +55,7 @@ const SignUp = () => {
       localStorage.setItem(file.name, url);
       setPreview(url);
     };
-    console.log('imageurl', imageUrl);
-    if (imageUrl) converImagetUrl(imageUrl[0]);
+    if (imageUrl?.length) converImagetUrl(imageUrl[0]);
   }, [imageUrl]);
 
   return (

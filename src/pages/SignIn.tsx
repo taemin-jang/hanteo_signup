@@ -6,6 +6,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 import { Cookies } from 'react-cookie';
 import ValidateMessage from '../components/ValidateMessage';
+import { useEffect, useState } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 
 interface IUser {
   id: string;
@@ -35,8 +37,12 @@ const SignIn = () => {
     clearErrors,
     handleSubmit,
   } = useForm<IFormValues>({ mode: 'onChange' });
+  const [singInFailCount, setSignInFailCount] = useState(0);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { showBoundary } = useErrorBoundary();
+  const cookies = new Cookies();
+  const TIME = 60;
 
   const onSubmit: SubmitHandler<IFormValues> = async data => {
     const { userID, userPW } = data;
@@ -46,10 +52,12 @@ const SignIn = () => {
         queryFn: () => getUser(),
       });
 
-      if (userID !== query.id || userPW !== query.password)
+      if (userID !== query.id || userPW !== query.password) {
+        setSignInFailCount(prevCount => prevCount + 1);
         throw new Error(
           '아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.',
         );
+      }
 
       navigate('/mypage');
     } catch (error) {
@@ -58,6 +66,17 @@ const SignIn = () => {
       alert(message);
     }
   };
+
+  useEffect(() => {
+    if (singInFailCount >= 3) {
+      cookies.set('signinNotAccess', true, { path: '/', maxAge: TIME });
+      showBoundary({
+        code: 401,
+        message:
+          '🚨로그인 시도 횟수 초과로 1분간 서비스를 이용할 수 없습니다.🚨',
+      });
+    }
+  }, [singInFailCount]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
