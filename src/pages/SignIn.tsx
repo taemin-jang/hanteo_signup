@@ -7,30 +7,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import ValidateMessage from '../components/ValidateMessage';
 import { useEffect, useState } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
-import { getCookies, setErrorCookies } from '../utils/cookies';
-
-interface IUser {
-  id: string;
-  password: string;
-  name: string;
-  image: string;
-  create_at: number;
-  update_at: number;
-}
-
-const getUser = (
-  setSignInFailCount: React.Dispatch<React.SetStateAction<number>>,
-) => {
-  const userInfo: IUser = getCookies('user');
-  if (!userInfo) {
-    setSignInFailCount(prevCount => prevCount + 1);
-    throw new Error(
-      '아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.',
-    );
-  }
-  return userInfo;
-};
-
+import { setErrorCookies } from '../utils/cookies';
+import getUserWithValidation, {
+  handleSignInError,
+} from '../utils/getUserWithValidation';
 interface IFormValues {
   userID: string;
   userPW: string;
@@ -54,14 +34,11 @@ const SignIn = () => {
     try {
       const query = await queryClient.fetchQuery({
         queryKey: ['user'],
-        queryFn: () => getUser(setSignInFailCount),
+        queryFn: () => getUserWithValidation(setSignInFailCount),
       });
 
       if (userID !== query.id || userPW !== query.password) {
-        setSignInFailCount(prevCount => prevCount + 1);
-        throw new Error(
-          '아이디 또는 비밀번호를 잘못 입력했습니다. 다시 입력해주세요.',
-        );
+        handleSignInError(setSignInFailCount);
       }
 
       navigate('/mypage');

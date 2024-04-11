@@ -8,7 +8,8 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import convertBase64 from '../utils/convertBase64';
 import getDate from '../utils/getDate';
 import { useNavigate } from 'react-router-dom';
-import { getCookies, setCookies } from '../utils/cookies';
+import { setCookies } from '../utils/cookies';
+import { getUserFromCookie } from '../utils/getUserWithValidation';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -18,20 +19,6 @@ interface IFormValues {
   userName: string;
   login: string;
 }
-
-interface IUser {
-  id: string;
-  password: string;
-  name: string;
-  image: string;
-  create_at: number;
-  update_at: number;
-}
-
-const getUser = () => {
-  const userInfo: IUser = getCookies('user');
-  return userInfo;
-};
 
 const Mypage = () => {
   const {
@@ -45,7 +32,7 @@ const Mypage = () => {
 
   const query = useSuspenseQuery({
     queryKey: ['user'],
-    queryFn: () => getUser(),
+    queryFn: () => getUserFromCookie(),
   });
   const data = query.data;
   const saveImageUrl: string = localStorage.getItem(data.image) || '';
