@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import '../styles/mypage.css';
 import Spinner from '../components/Spinner';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import convertBase64 from '../utils/convertBase64';
 import getDate from '../utils/getDate';
 import { useNavigate } from 'react-router-dom';
 import { setCookies } from '../utils/cookies';
 import { getUserFromCookie } from '../utils/getUserWithValidation';
+import useConvertImage from '../hooks/useConvertImageUrl';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -42,6 +42,15 @@ const Mypage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  useConvertImage(imageUrl, setPreview);
+
+  useEffect(() => {
+    setValue('userID', data.id);
+    setValue('userName', data.name);
+    setValue('createAt', getDate(new Date(data.create_at)));
+    setValue('updateAt', getDate(new Date(data.update_at)));
+  }, [data.update_at]);
+
   const onSubmit: SubmitHandler<IFormValues> = async FromData => {
     setLoading(true);
     setTimeout(async () => {
@@ -57,22 +66,6 @@ const Mypage = () => {
       setLoading(false);
     }, 1000);
   };
-
-  useEffect(() => {
-    setValue('userID', data.id);
-    setValue('userName', data.name);
-    setValue('createAt', getDate(new Date(data.create_at)));
-    setValue('updateAt', getDate(new Date(data.update_at)));
-  }, [data.update_at]);
-
-  useEffect(() => {
-    const converImagetUrl = async (file: File) => {
-      const url = await convertBase64(file);
-      localStorage.setItem(file.name, url);
-      setPreview(url);
-    };
-    if (imageUrl?.length) converImagetUrl(imageUrl[0]);
-  }, [imageUrl]);
 
   return (
     <>

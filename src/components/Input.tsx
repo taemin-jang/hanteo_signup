@@ -36,7 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, IProps>((props, ref) => {
 interface ImageUploadProps extends IProps {
   accept: string;
   required?: boolean;
-  multiple: boolean;
+  multiple?: boolean;
 }
 
 export const ImageUploadInput = React.forwardRef<

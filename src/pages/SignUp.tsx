@@ -1,11 +1,10 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Input, { ImageUploadInput } from '../components/Input';
 import Button from '../components/Button';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import '../styles/signup.css';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
-import convertBase64 from '../utils/convertBase64';
 import { useErrorBoundary } from 'react-error-boundary';
 import {
   getCookies,
@@ -13,6 +12,8 @@ import {
   setCookies,
   setErrorCookies,
 } from '../utils/cookies';
+import useConvertImage from '../hooks/useConvertImageUrl';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -37,7 +38,11 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { showBoundary } = useErrorBoundary();
+  const queryClient = useQueryClient();
+
   let reqCount: number = getCookies('reqCount') ?? 0;
+
+  useConvertImage(imageUrl, setPreview);
 
   const onSubmit: SubmitHandler<IFormValues> = data => {
     setLoading(true);
@@ -70,19 +75,11 @@ const SignUp = () => {
 
       setCookies('reqCount', reqCount + 1);
       setCookies('user', userInfo);
+      queryClient.setQueryData(['user'], userInfo);
       setLoading(false);
       navigate('/signin');
     }, 1000);
   };
-
-  useEffect(() => {
-    const converImagetUrl = async (file: File) => {
-      const url = await convertBase64(file);
-      localStorage.setItem(file.name, url);
-      setPreview(url);
-    };
-    if (imageUrl?.length) converImagetUrl(imageUrl[0]);
-  }, [imageUrl]);
 
   return (
     <>
@@ -98,7 +95,6 @@ const SignUp = () => {
           label="이미지 업로드"
           placeholder="이미지를 첨부해주세요."
           accept="image/*"
-          multiple
           errorMsg={errors.imageUrl}
           {...register('imageUrl', {
             required: '이미지를 첨부해주세요.',
