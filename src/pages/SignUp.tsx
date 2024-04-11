@@ -14,6 +14,7 @@ import {
 } from '../utils/cookies';
 import useConvertImage from '../hooks/useConvertImageUrl';
 import { useQueryClient } from '@tanstack/react-query';
+import saveUserInfoToCookie from '../utils/saveUserInfoToCookie';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -47,18 +48,10 @@ const SignUp = () => {
   const onSubmit: SubmitHandler<IFormValues> = data => {
     setLoading(true);
     setTimeout(() => {
-      const { imageUrl, userID, userPW, userName } = data;
       const prevId: string = getCookies('user')?.id;
-      const userInfo = {
-        id: userID,
-        password: userPW,
-        name: userName,
-        image: imageUrl[0].name,
-        create_at: Date.now(),
-        update_at: Date.now(),
-      };
+      saveUserInfoToCookie(queryClient, data);
 
-      if (prevId !== userID) {
+      if (prevId !== data.userID) {
         removeCookies('reqCount');
         reqCount = 0;
       }
@@ -74,8 +67,6 @@ const SignUp = () => {
       }
 
       setCookies('reqCount', reqCount + 1);
-      setCookies('user', userInfo);
-      queryClient.setQueryData(['user'], userInfo);
       setLoading(false);
       navigate('/signin');
     }, 1000);

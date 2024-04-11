@@ -7,9 +7,9 @@ import Spinner from '../components/Spinner';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import getDate from '../utils/getDate';
 import { useNavigate } from 'react-router-dom';
-import { setCookies } from '../utils/cookies';
 import { getUserFromCookie } from '../utils/getUserWithValidation';
 import useConvertImage from '../hooks/useConvertImageUrl';
+import saveUserInfoToCookie from '../utils/saveUserInfoToCookie';
 
 interface IFormValues {
   imageUrl: FileList;
@@ -51,18 +51,11 @@ const Mypage = () => {
     setValue('updateAt', getDate(new Date(data.update_at)));
   }, [data.update_at]);
 
-  const onSubmit: SubmitHandler<IFormValues> = async FromData => {
+  const onSubmit: SubmitHandler<IFormValues> = async formData => {
     setLoading(true);
     setTimeout(async () => {
-      const { imageUrl, userName } = FromData;
-      const userInfo = {
-        ...data,
-        name: userName,
-        image: imageUrl[0]?.name ?? data.image,
-        update_at: Date.now(),
-      };
-      setCookies('user', userInfo);
-      queryClient.setQueryData(['user'], userInfo);
+      saveUserInfoToCookie(queryClient, formData, data);
+
       setLoading(false);
     }, 1000);
   };
